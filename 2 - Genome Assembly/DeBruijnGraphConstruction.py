@@ -1,0 +1,106 @@
+import numpy as np 
+import time 
+"""
+Name: OWAIS SARWAR
+
+DeBruijn Graph from k-mers Problem: Construct the de Bruijn graph from a set of k-mers.
+
+Input: A collection of k-mers Patterns.
+Output: The adjacency list of the de Bruijn graph DeBruijn(Patterns).
+
+Code Challenge: Solve the de Bruijn Graph from k-mers Problem.
+
+Sample Input:
+
+GAGG
+CAGG
+GGGG
+GGGA
+CAGG
+AGGG
+GGAG
+
+Sample Output:
+
+AGG -> GGG
+CAG -> AGG,AGG
+GAG -> AGG
+GGA -> GAG
+GGG -> GGA,GGG
+
+"""
+def deBruijn(Patterns): 
+
+	Prefixes, Suffixes = [], []
+	for idx, pattern in enumerate(Patterns): 
+		Prefixes.append(pattern[0:-1])
+		Suffixes.append(pattern[1:])
+
+	PrefixesAndSuffixes = Prefixes + Suffixes
+
+	uniquePrefixesAndSuffixes = np.unique(PrefixesAndSuffixes)
+
+	num_nodes = len(uniquePrefixesAndSuffixes)
+
+	AdjacencyMatrix = np.zeros((num_nodes, num_nodes))
+
+	for idx1, pref in enumerate(uniquePrefixesAndSuffixes): 
+		for idx2, suff in enumerate(uniquePrefixesAndSuffixes): 
+
+			if pref[1:] == suff[:-1]: 
+				count_kmer = Patterns.count(pref + suff[-1])
+				if count_kmer > 0: 
+					AdjacencyMatrix[idx1][idx2] = count_kmer
+
+
+	return uniquePrefixesAndSuffixes, AdjacencyMatrix
+
+def AdjacencyMatrix_to_AdjacencyList(uniquePrefixesAndSuffixes, AdjacencyMatrix): 
+
+	arrow = ' -> '
+
+	for idx1, NodeOrigin in enumerate(AdjacencyMatrix): # Each node in dB graph 
+
+		print_arrow = True 
+
+		for idx2, NodeDestination in enumerate(NodeOrigin): # Each potential edge from node to another node 
+
+			if NodeDestination >= 1: 
+
+				for num_edges in range(int(NodeDestination)): 
+					if print_arrow: 
+
+						print()
+						print(uniquePrefixesAndSuffixes[idx1], arrow, uniquePrefixesAndSuffixes[idx2], end="")
+
+						print_arrow = False 
+
+					else: 
+
+						print(',', uniquePrefixesAndSuffixes[idx2],end="")
+
+
+f = open("dataset_397292_8.txt", "r")
+data = f.readlines()
+
+#Patters/k-mers  
+Patterns = data
+
+for idx, kmer in enumerate(Patterns): 
+	Patterns[idx] = kmer.strip('\n')
+
+Patterns = ["GAGG",
+"CAGG",
+"GGGG",
+"GGGA",
+"CAGG",
+"AGGG",
+"GGAG"]
+
+starttime = time.time()
+
+uniquePrefixesAndSuffixes, AdjacencyMatrix = deBruijn(Patterns)
+print(time.time()-starttime)
+starttime = time.time()
+AdjacencyMatrix_to_AdjacencyList(uniquePrefixesAndSuffixes, AdjacencyMatrix)
+
